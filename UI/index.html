@@ -146,7 +146,7 @@
 												<label>
 													Expediente:
 													<input type="text" id="expText" class="form-control input-sm" aria-controls="dataTables-example">
-													<button class="btn btn-default" ng-click="getMovimientoInfo()"><i class=" fa fa-search "></i> Buscar</button>
+													<button class="btn btn-default" ng-click="buscar()"><i class=" fa fa-search "></i> Buscar</button>
 												</label>
 											</div>
 										</div>
@@ -190,44 +190,47 @@
 
                                                 <tr>
                                                    
-												   <td class="text-left">
+												   <td class="text-center">
                                                         {{x.noMovimiento}}
                                                     </td>
-													<td class="text-left">
+													<td class="text-center">
                                                         {{x.fechaVencimiento}}
                                                     </td>
-													<td class="text-left">
+													<td class="text-center">
                                                         {{x.importe}}
                                                     </td>
-													<td class="text-left">
+													<td class="text-center">
                                                         {{x.saldo}}
                                                     </td>
-                                                    <td class="text-left">
+                                                    <td class="text-center">
                                                         {{x.fechaPago}}
                                                     </td>
                                                     <td class="text-center">
-                                                        <input type="checkbox" class="custom-checkbox" id={{x.CodFrac}} name={{x.Nombre}} ng-click="calcularFracs()">
+                                                        <input type="checkbox" class="custom-checkbox" id={{x.noMovimiento}} name = {{x.saldo}} >
                                                             <label for={{x.CodFrac}}></label>
                                                     </td>
                                                 </tr>
                                             </tbody>
                                         </table>
 										<div class="text-right"> 
+										<button class="btn btn-default" ng-click="pagar()"><i class=" fa fa-credit-card "></i> Pagar</button>
 											<nav>
+											
 												<ul class="pagination">
 												  <li ng-click="previousPage()">
-													<a id="previous" href="#" aria-label="Previous">
+													<a id="previous"  aria-label="Previous">
 													  <span aria-hidden="true">&laquo;</span>
 													</a>
 												  </li>
 												  <li><a href="#">{{pagina}}</a></li>
 												  <li ng-click="nextPage()">
-													<a id="next" href="#" aria-label="Next">
+													<a id="next"  aria-label="Next">
 													  <span aria-hidden="true">&raquo;</span>
 													</a>
 												  </li>
 												</ul>
 											</nav>
+											
                                         </div>
                                     </div>
                                 </div>
@@ -280,6 +283,10 @@
             e.preventDefault();
         }
     });
+	
+			
+	
+	
               var app = angular.module('index', []).config(function($httpProvider){
               $httpProvider.defaults.useXDomain = true;
               delete $httpProvider.defaults.headers.common['X-Requested-With'];
@@ -292,28 +299,18 @@
 			  $scope.allFracs = [];
 			  
                      
-                      $scope.calcularFracs = function(){
+                      $scope.pagar = function(){
 
-                      $('input:checked').each(function()
-                      {
-                                                                           
-                    });
-                              angular.forEach($scope.menu2, function(item) {
+                     
+                              angular.forEach($('input:checked'), function(item) {
 
-                              if (item.id != "0")
-                              {
-                              var obj = $scope.menu2.filter($scope.buscarObj.bind(this, item.id))[0]
-
-                                      console.log(obj.bExp + " " + obj.bSC + " " + obj.bSV + " " + obj.bSR);
-                                      if (obj.bExp == false){$scope.getExpediente(item.id,"0"); }
-
-                              if (obj.bSV == false){$scope.getSaldoVencido(item.id); }
-
-                              if (obj.bSC == false){$scope.getSaldoCorriente(item.id); }
-
-                              if (obj.bSR == false){$scope.getSaldoRecuperado(item.id); }
-
-                              }
+								  if (item.name != "0.0000")
+								  {
+									$scope.pagarCall(item.id);
+									
+								  }
+								  else
+									console.log(item.id);
                               });
                    };
                       
@@ -321,26 +318,21 @@
 
          
 
-
-
-
-         
-          $scope.getAllFracs = function(){
-
-          
-                  /*
-                   $http.get("http://soapjaxws.herokuapp.com/HelloService/pagar", {params: { arg0: 01200000000000699 }})
+			$scope.pagarCall = function(mov){
+				$http.get("http://soapjaxws.herokuapp.com/HelloService/pagar", {params: { arg0: mov }})
                    .success(function(response) {
                    var xmlText = response;
                    var x2js = new X2JS();
                    var jsonObj = x2js.xml_str2json( xmlText );
-                   console.log(jsonObj.Envelope.Body.pagarResponse.return);
-                   
+                  
+                   $scope.getMovimientoInfo();
                    })
-                   .error(function(response) {console.log(response); });
-                   */
-				   
-				   
+                   .error(function(response) {$scope.pagarCall(); });
+			};
+
+
+         
+          $scope.getAllFracs = function(){
 				   $http.get("http://soapjaxws.herokuapp.com/HelloService/getAllFracs", {params: { }})
                    .success(function(response) {
                    var xmlText = response;
@@ -353,12 +345,21 @@
                    .error(function(response) {$scope.getAllFracs(); });
 
           };
+		  $scope.buscar = function(){
+		   $scope.pagina=0;
+		   $scope.movimientos=[];
+		   $scope.getMovimientoInfo();
+		   
+		  }
 		  
 		  $scope.getMovimientoInfo = function(){
 
+		  console.log($scope.myFrac.codFrac);
 				   var codFrac = $scope.myFrac.codFrac;
 				   $scope.expediente = $("#expText").val();
 				   var page = $scope.pagina;
+				  
+				  
 				   
 				   $http.get("http://soapjaxws.herokuapp.com/HelloService/getMovimientoInfo", {params: { arg0:codFrac,arg1:$scope.expediente, arg2:page}})
                    .success(function(response) {
@@ -372,7 +373,7 @@
 					    if(jsonObj.Envelope.Body.getMovimientoInfoResponse.return.movimientos != null)
 						$scope.movimientos = jsonObj.Envelope.Body.getMovimientoInfoResponse.return.movimientos;
 						else
-						alert("dfdf");
+						alert("Sin resultados");
 				   
                   console.log(jsonObj.Envelope.Body.getMovimientoInfoResponse);
 				    
@@ -384,17 +385,18 @@
           
           $scope.nextPage = function(){
             
-                
+					$scope.movimientos=[];
                     $scope.pagina++;
-                    $scope.getAllFracs();
+                    $scope.getMovimientoInfo();
                
             };
             
             $scope.previousPage = function(){
             
                 if ( $scope.pagina >0 ) {
+				$scope.movimientos=[];
                     $scope.pagina--;
-                    $scope.getAllFracs();
+                    $scope.getMovimientoInfo();
                 }
                 else
                 {
