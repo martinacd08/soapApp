@@ -312,13 +312,13 @@
 						console.log("There is a problem:", data);
 					}
 				});
-			  $scope.enviarMensaje=function(fecha,exp, saldoCorriente, saldoVencido) {
+			  $scope.enviarMensaje=function(fecha,exp) {
 			  
 			  
 						
 					var mensaje = {
-						saldoCorriente:saldoCorriente,
-						saldoVencido:saldoVencido,
+						saldoCorriente:$scope.saldoCorriente,
+						saldoVencido:$scope.saldoVencido,
 						fecha:fecha,
 						expediente: exp,
 						frac: $scope.myFrac.codFrac
@@ -335,7 +335,7 @@
                      
                 $scope.pagar = function(){
 				
-					var exp = $scope.expediente;
+					
 					var saldoCorriente = $scope.saldoCorriente;
 					var saldoVencido=	$scope.saldoVencido ;
 					
@@ -343,7 +343,7 @@
 
 								  if (item.name != "0.0000")
 								  {
-									$scope.pagarCall(item.id, $scope.fechaActual, exp);
+									$scope.pagarCall(item.id);
 									
 								  }
 								  else
@@ -355,7 +355,7 @@
 
          
 
-			$scope.pagarCall = function(mov, fecha,exp){
+			$scope.pagarCall = function(mov){
 				$http.get("http://soapjaxws.herokuapp.com/HelloService/pagar", {params: { arg0: mov }})
                    .success(function(response) {
                    var xmlText = response;
@@ -363,9 +363,9 @@
                    var jsonObj = x2js.xml_str2json( xmlText );
                   
                    $scope.getMovimientoInfo();
-				   $scope.enviarMensaje(fecha,exp, $scope.saldoCorriente, $scope.saldoVencido);
+				  
                    })
-                   .error(function(response) {$scope.pagarCall(mov, fecha,exp); });
+                   .error(function(response) {$scope.pagarCall(mov); });
 			};
 
 
@@ -408,16 +408,16 @@
 						$scope.saldoCorriente = jsonObj.Envelope.Body.getMovimientoInfoResponse.return.SaldoCorriente;
 						$scope.saldoVencido = jsonObj.Envelope.Body.getMovimientoInfoResponse.return.saldoVencido;
 					    $scope.titular = jsonObj.Envelope.Body.getMovimientoInfoResponse.return.titular;
-					    if(jsonObj.Envelope.Body.getMovimientoInfoResponse.return.movimientos != null)
+						
+						
+					    if(jsonObj.Envelope.Body.getMovimientoInfoResponse.return.movimientos != null){
 						$scope.movimientos = jsonObj.Envelope.Body.getMovimientoInfoResponse.return.movimientos;
-						
-						
-						
-						
-						
+						$scope.enviarMensaje( $scope.fechaActual, $scope.expediente);
+						}
+						else
 						alert("Sin resultados");
 				   
-                  console.log(jsonObj.Envelope.Body.getMovimientoInfoResponse);
+						console.log(jsonObj.Envelope.Body.getMovimientoInfoResponse);
 				    
                    })
                    .error(function(response) {$scope.getAllFracs(); });
