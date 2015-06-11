@@ -363,7 +363,7 @@
                    var jsonObj = x2js.xml_str2json( xmlText );
                   
                    $scope.getMovimientoInfo();
-				   $scope.enviarMensaje(fecha,exp, saldoCorriente, saldoVencido);
+				   
                    })
                    .error(function(response) {$scope.pagarCall(); });
 			};
@@ -410,6 +410,10 @@
 					    $scope.titular = jsonObj.Envelope.Body.getMovimientoInfoResponse.return.titular;
 					    if(jsonObj.Envelope.Body.getMovimientoInfoResponse.return.movimientos != null)
 						$scope.movimientos = jsonObj.Envelope.Body.getMovimientoInfoResponse.return.movimientos;
+						
+						$scope.enviarMensaje(fecha,exp, $scope.saldoCorriente, $scope.saldoVencido);
+						
+						
 						else
 						alert("Sin resultados");
 				   
