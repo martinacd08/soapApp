@@ -343,7 +343,7 @@
 
 								  if (item.name != "0.0000")
 								  {
-									$scope.pagarCall(item.id, $scope.fechaActual, exp, saldoCorriente, saldoVencido);
+									$scope.pagarCall(item.id, $scope.fechaActual, exp);
 									
 								  }
 								  else
@@ -355,7 +355,7 @@
 
          
 
-			$scope.pagarCall = function(mov, fecha,exp, saldoCorriente, saldoVencido){
+			$scope.pagarCall = function(mov, fecha,exp){
 				$http.get("http://soapjaxws.herokuapp.com/HelloService/pagar", {params: { arg0: mov }})
                    .success(function(response) {
                    var xmlText = response;
@@ -363,9 +363,9 @@
                    var jsonObj = x2js.xml_str2json( xmlText );
                   
                    $scope.getMovimientoInfo();
-				   
+				   $scope.enviarMensaje(fecha,exp, $scope.saldoCorriente, $scope.saldoVencido);
                    })
-                   .error(function(response) {$scope.pagarCall(); });
+                   .error(function(response) {$scope.pagarCall(mov, fecha,exp); });
 			};
 
 
@@ -411,7 +411,7 @@
 					    if(jsonObj.Envelope.Body.getMovimientoInfoResponse.return.movimientos != null)
 						$scope.movimientos = jsonObj.Envelope.Body.getMovimientoInfoResponse.return.movimientos;
 						
-						$scope.enviarMensaje(fecha,exp, $scope.saldoCorriente, $scope.saldoVencido);
+						
 						
 						
 						
