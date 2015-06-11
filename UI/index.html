@@ -206,7 +206,7 @@
                                                         {{x.fechaPago}}
                                                     </td>
                                                     <td class="text-center">
-                                                        <input type="checkbox" class="custom-checkbox" id={{x.noMovimiento}} name = {{x.saldo}} >
+                                                        <input type="checkbox" class="custom-checkbox" id={{x.noMovimiento}} name = {{x.saldo}} title={{x.fechaPago}}>
                                                             <label for={{x.CodFrac}}></label>
                                                     </td>
                                                 </tr>
@@ -261,6 +261,8 @@
         <script src="assets/js/custom-scripts.js"></script>
 
         <script src="assets/js/xml2json.min.js"></script>
+		
+		<script src="assets/js/socket.io.js"></script>
 
         <script>
               $(".frac_table").hide();
@@ -293,20 +295,55 @@
               $httpProvider.defaults.timeout = 500000;
       });
               app.controller('index_ctrl', function($scope, $http) {
+			  $scope.d = new Date();
+			  var month = $scope.d.getMonth()+1;
+			  if(month<10)
+				month = "0"+month;
+			  $scope.fechaActual = $scope.d.getDate()+""+month+""+$scope.d.getFullYear();
+			  
+			  var socket;
+				socket = io.connect('https://rest-server-computo.herokuapp.com');
+				socket.on('message', function (data) {
+					if(data.message) {
+						console.log(data.message);
+					} else {
+					
+						
+						console.log("There is a problem:", data);
+					}
+				});
+			  $scope.enviarMensaje=function(fecha,exp, saldoCorriente, saldoVencido) {
+			  
+			  
+						
+					var mensaje = {
+						saldoCorriente:saldoCorriente,
+						saldoVencido:saldoVencido,
+						fecha:fecha,
+						expediente: exp,
+						frac: $scope.myFrac.codFrac
+					}
+					
+					
+					socket.emit('updateMov', { mensaje:mensaje });
+				};
+			  
               $scope.pagina = 0;
              
-			  
 			  $scope.allFracs = [];
 			  
                      
-                      $scope.pagar = function(){
-
-                     
+                $scope.pagar = function(){
+				
+					var exp = $scope.expediente;
+					var saldoCorriente = $scope.saldoCorriente;
+					var saldoVencido=	$scope.saldoVencido ;
+					
                               angular.forEach($('input:checked'), function(item) {
 
 								  if (item.name != "0.0000")
 								  {
-									$scope.pagarCall(item.id);
+									$scope.pagarCall(item.id, $scope.fechaActual, exp, saldoCorriente, saldoVencido);
 									
 								  }
 								  else
@@ -318,7 +355,7 @@
 
          
 
-			$scope.pagarCall = function(mov){
+			$scope.pagarCall = function(mov, fecha,exp, saldoCorriente, saldoVencido){
 				$http.get("http://soapjaxws.herokuapp.com/HelloService/pagar", {params: { arg0: mov }})
                    .success(function(response) {
                    var xmlText = response;
@@ -326,6 +363,7 @@
                    var jsonObj = x2js.xml_str2json( xmlText );
                   
                    $scope.getMovimientoInfo();
+				   $scope.enviarMensaje(fecha,exp, saldoCorriente, saldoVencido);
                    })
                    .error(function(response) {$scope.pagarCall(); });
 			};
@@ -394,7 +432,7 @@
             $scope.previousPage = function(){
             
                 if ( $scope.pagina >0 ) {
-				$scope.movimientos=[];
+					$scope.movimientos=[];
                     $scope.pagina--;
                     $scope.getMovimientoInfo();
                 }
