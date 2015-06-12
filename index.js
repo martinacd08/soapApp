@@ -2,7 +2,16 @@
 var express = require('express'),
         app = express();
 
+var session = require('express-session');
+var bodyParser = require('body-parser');
 
+
+app.use(session({secret: 'ssshhhhh'}));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
+
+		
+		
 app.use(function(req, res, next) {
     res.setTimeout(500000, function() {
         console.log('Request has timed out.');
@@ -28,8 +37,53 @@ var allowCrossDomain = function(req, res, next) {
 app.use(allowCrossDomain);
 
 
-app.get('/', function(req, res) {
-    res.sendfile(__dirname + '/UI/index.html');
+
+var sess = null;
+
+app.get('/',function(req,res){
+	res.sendFile(__dirname + '/UI/login.html');
+});
+
+app.post('/login',function(req,res){
+	
+	if(req.body.pass == 'pass' & req.body.email== 'user'){
+		sess=req.body;
+		res.end("ok")
+		
+	}
+	else
+	{
+		res.end("Error")
+	}
+});
+
+app.get('/admin',function(req,res){
+
+		if(sess !=null)
+		{
+			res.sendFile(__dirname + '/UI/admin.html');
+		}
+		else
+		{
+		
+			res.redirect('/');
+		}
+
+
+});
+
+app.get('/logout',function(req,res){
+	sess = null;
+	req.session.destroy(function(err){
+		if(err){
+			console.log(err);
+		}
+		else
+		{
+			res.redirect('/');
+		}
+	});
+
 });
 
 

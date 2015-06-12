@@ -8,7 +8,7 @@
 	
   },
   "dependencies": {
-    "express": "~4.9.x","connect-timeout":"*"
+    "express": "~4.9.x","connect-timeout":"*","express-session":"*","body-parser":"*"
   },
   "files": [
     "DAL/",
