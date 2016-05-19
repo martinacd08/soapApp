@@ -72,6 +72,22 @@ app.get('/admin',function(req,res){
 
 });
 
+
+app.get('/acciones',function(req,res){
+
+		if(sess !=null)
+		{
+			res.sendFile(__dirname + '/UI/acciones_sarai.html');
+		}
+		else
+		{
+		
+			res.redirect('/');
+		}
+
+
+});
+
 app.get('/logout',function(req,res){
 	sess = null;
 	req.session.destroy(function(err){
