@@ -29,7 +29,7 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" href="index.html">Camachosoft</a>
+                    <a class="navbar-brand" href="index.html">Sarai</a>
                 </div>
 
                 <ul class="nav navbar-top-links navbar-right">
@@ -50,17 +50,7 @@
                     <!-- /.dropdown -->
                 </ul>
             </nav>
-            <!--/. NAV TOP  -->
-            <nav class="navbar-default navbar-side" role="navigation"  >
-                <div class="sidebar-collapse" >
-                    <ul class="nav"  id="main-menu"   >
-
-                        <li >
-                            <a class="active-menu"  href="#"><i class="fa fa-dashboard"></i> Pagos</a>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
+            
             <!-- /. NAV SIDE  -->
             <div id="page-wrapper">
                 <div id="page-inner">
@@ -75,20 +65,20 @@
 										<div class="col-sm-6">
 											<div class="dataTables_length" id="dataTables-example_length">
 												<label>
-												Fraccionamiento:
-													 <select ng-model="myFrac" ng-options="frac.nombre for frac in allFracs"></select>
+												
+													<button class="btn btn-default" ng-click="darCafe()"><i class=" fa fa-coffee"></i> Cafe</button>
 												</label>
 											</div>
 										</div>
-										<div class="col-sm-6">
-											<div id="dataTables-example_filter" class="dataTables_filter">
-												<label>
-													Expediente:
-													<input type="text" id="expText" class="form-control input-sm" aria-controls="dataTables-example">
-													<button class="btn btn-default" ng-click="buscar()"><i class=" fa fa-search "></i> Buscar</button>
-												</label>
-											</div>
-										</div>
+                    <div class="col-sm-6">
+                      <div class="dataTables_length" id="dataTables-example_length">
+                        <label>
+                       
+                          <button class="btn btn-default" ng-click="darComida()"><i class=" fa fa-heart-o "></i> Comida</button>
+                        </label>
+                      </div>
+                    </div>
+									
 									</div>
 								</div> 
 								
@@ -152,7 +142,7 @@
                                             </tbody>
                                         </table>
 										<div class="text-right"> 
-										<button class="btn btn-default" ng-click="pagar()"><i class=" fa fa-credit-card "></i> Pagar</button>
+										<button class="btn btn-default" ng-click="pagar()"><i class=" fa fa-credit-card "></i> Alimentar</button>
 											<nav>
 											
 												<ul class="pagination">
@@ -251,6 +241,9 @@
 						console.log("There is a problem:", data);
 					}
 				});
+
+
+
 			  $scope.enviarMensaje=function(fecha,exp) {
 			  
 			  
@@ -266,6 +259,25 @@
 					
 					socket.emit('updateMov', { mensaje:mensaje });
 				};
+
+ $scope.darComida = function(){
+
+  var mensaje = {
+            cantidad:10
+          }
+          socket.emit('darComida', { mensaje:mensaje });
+ };
+
+ $scope.darCafe = function(){
+
+  var mensaje = {
+            cantidad:10
+          }
+          socket.emit('darCafe', { mensaje:mensaje });
+ };
+
+
+       
 			  
               $scope.pagina = 0;
              
